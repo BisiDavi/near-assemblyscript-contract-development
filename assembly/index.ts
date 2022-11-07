@@ -1,7 +1,5 @@
-import { PersistentUnorderedMap } from "near-sdk-as";
+import { context, ContractPromiseBatch } from "near-sdk-as";
 import { listedProducts, Product } from "./model";
-
-export const products = new PersistentUnorderedMap<string, string>("PRODUCTS");
 
 export function setProduct(product: Product): void {
   let storedProduct = listedProducts.get(product.id);
@@ -17,4 +15,17 @@ export function getProduct(id: string): Product | null {
 
 export function getProducts(): Product[] {
   return listedProducts.values();
+}
+
+export function buyProduct(productId: string): void {
+  const product = getProduct(productId);
+  if (product == null) {
+    throw new Error("product not found");
+  }
+  if (product.price.toString() != context.attachedDeposit.toString()) {
+    throw new Error("attached deposit should equal to the product's price");
+  }
+  ContractPromiseBatch.create(product.owner).transfer(context.attachedDeposit);
+  product.incrementSoldAmount();
+  listedProducts.set(product.id, product);
 }
