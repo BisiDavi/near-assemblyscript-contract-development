@@ -25,7 +25,7 @@ export class Product {
     this.sold = this.sold + 1;
   }
 }
-
+// L_PDTS => LISTED_PRODUCTS
 export const listedProducts = new PersistentUnorderedMap<string, Product>(
-  "LISTED_PRODUCTS" 
+  "L_PDTS"
 );
